@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 from my_dataset import MyDataSet
-from swin_ts import swin_tiny_patch4_window7_224 as create_model
+from SwinLSC_model import swin_tiny_patch4_window7_224 as create_model
 from utils import read_split_data, train_one_epoch, evaluate
 
 
