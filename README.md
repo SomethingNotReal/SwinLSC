@@ -18,7 +18,7 @@ Due to the fact that the dataset used in this research is an internal dataset of
 
 
 
-train.py,SwinLSC_model.py为项目核心文件，要运行项目请遵循以下步骤：
+Train. py and SwinLSC_model. py are the core files of the project. Please follow the following steps to run the project：
 
 1. Ensure that all project files have been downloaded completely
 
@@ -28,9 +28,7 @@ train.py,SwinLSC_model.py为项目核心文件，要运行项目请遵循以下�
    from SwinLSC_model import swin_tiny_patch4_window7_224 as create_model
    ```
 
-4. Ensure that the dataset is classified correctly and that images of the same category are stored in a folder named after the category. As shown in the following figure:
-
-5. ![image-20250311120850438](C:\Users\23605\AppData\Roaming\Typora\typora-user-images\image-20250311120850438.png)
+4. Ensure that the dataset is classified correctly and that images of the same category are stored in a folder named after the category.
 
 6. A reasonable set of input parameters are as follows:
 
