@@ -6,19 +6,48 @@ from torch.utils.data import Dataset
 
 
 class MyDataSet(Dataset):
-    """自定义数据集"""
+    """
+    Custom dataset class for image classification.
+    
+    This class handles loading images and their corresponding labels,
+    and applies transformations to the images if specified.
+    """
 
     def __init__(self, images_path: list, images_class: list, transform=None):
+        """
+        Initialize the dataset.
+        
+        Args:
+            images_path: List of paths to images
+            images_class: List of class labels for each image
+            transform: Transformations to apply to images
+        """
         self.images_path = images_path
         self.images_class = images_class
         self.transform = transform
 
     def __len__(self):
+        """
+        Get the number of samples in the dataset.
+        
+        Returns:
+            Number of samples
+        """
         return len(self.images_path)
 
     def __getitem__(self, item):
+        """
+        Get a sample from the dataset.
+        
+        Args:
+            item: Index of the sample
+            
+        Returns:
+            img: Transformed image
+            label: Class label
+        """
         img = Image.open(self.images_path[item])
-        # RGB为彩色图片，L为灰度图片
+        # RGB is for color images, L is for grayscale images
         if img.mode != 'RGB':
             img = img.convert('RGB')
 
@@ -31,9 +60,22 @@ class MyDataSet(Dataset):
 
     @staticmethod
     def collate_fn(batch):
-        #batch中每个元素是__getitem__得到的结果,是一个元组，第一个元素是图片，第二个元素是标签元组里包含8个元素，8个（img，label）
-        # 所以这里要使用zip解压，变成images，labels。
-        # 官方实现的default_collate可以参考
+        """
+        Collate function for creating batches.
+        
+        Each element in batch is a result from __getitem__, which is a tuple.
+        The first element is the image, the second element is the label.
+        The tuple contains 8 elements, 8 (img, label) pairs.
+        So we use zip to unpack it into images and labels.
+        
+        Args:
+            batch: Batch of samples
+            
+        Returns:
+            images: Batch of images
+            labels: Batch of labels
+        """
+        # The official implementation of default_collate can be referenced at
         # https://github.com/pytorch/pytorch/blob/67b7e751e6b5931a9f45274653f4f653a4e6cdf6/torch/utils/data/_utils/collate.py
         images, labels = tuple(zip(*batch))
 

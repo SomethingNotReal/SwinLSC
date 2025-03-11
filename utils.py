@@ -13,45 +13,58 @@ import matplotlib.pyplot as plt
 
 
 def read_split_data(root: str, val_rate: float = 0.2):
-    random.seed(0)  # 保证随机结果可复现
+    """
+    Read and split the dataset into training and validation sets.
+    
+    Args:
+        root: Root directory of the dataset
+        val_rate: Proportion of validation set
+        
+    Returns:
+        train_images_path: List of paths to training images
+        train_images_label: List of labels for training images
+        val_images_path: List of paths to validation images
+        val_images_label: List of labels for validation images
+    """
+    random.seed(0)  # Ensure reproducibility of random results
     assert os.path.exists(root), "dataset root: {} does not exist.".format(root)
 
-    # 遍历文件夹，一个文件夹对应一个类别
+    # Traverse folders, each folder corresponds to a category
     flower_class = [cla for cla in os.listdir(root) if os.path.isdir(os.path.join(root, cla))]
-    # 排序，保证各平台顺序一致
+    # Sort to ensure consistency across platforms
     flower_class.sort()
-    # 生成类别名称以及对应的数字索引
+    # Generate category names and corresponding numerical indices
     class_indices = dict((k, v) for v, k in enumerate(flower_class))
     json_str = json.dumps(dict((val, key) for key, val in class_indices.items()), indent=4)
     with open('class_indices.json', 'w') as json_file:
         json_file.write(json_str)
 
-    train_images_path = []  # 存储训练集的所有图片路径
-    train_images_label = []  # 存储训练集图片对应索引信息
-    val_images_path = []  # 存储验证集的所有图片路径
-    val_images_label = []  # 存储验证集图片对应索引信息
-    every_class_num = []  # 存储每个类别的样本总数
-    supported = [".jpg", ".JPG", ".png", ".PNG"]  # 支持的文件后缀类型
-    # 遍历每个文件夹下的文件
+    train_images_path = []  # Store all image paths in the training set
+    train_images_label = []  # Store index information corresponding to training set images
+    val_images_path = []  # Store all image paths in the validation set
+    val_images_label = []  # Store index information corresponding to validation set images
+    every_class_num = []  # Store the total number of samples for each category
+    supported = [".jpg", ".JPG", ".png", ".PNG"]  # Supported file extensions
+    # Traverse files in each folder
     for cla in flower_class:
         cla_path = os.path.join(root, cla)
-        # 遍历获取supported支持的所有文件路径
+        # Get all file paths supported by traversing
         images = [os.path.join(root, cla, i) for i in os.listdir(cla_path)
                   if os.path.splitext(i)[-1] in supported]
-        # 排序，保证各平台顺序一致
+        # Sort to ensure consistency across platforms
         images.sort()
-        # 获取该类别对应的索引
+        # Get the index corresponding to this category
         image_class = class_indices[cla]
-        # 记录该类别的样本数量
+        # Record the number of samples in this category
         every_class_num.append(len(images))
-        # 按比例随机采样验证样本
+        # Randomly sample validation samples by proportion
         val_path = random.sample(images, k=int(len(images) * val_rate))
 
         for img_path in images:
-            if img_path in val_path:  # 如果该路径在采样的验证集样本中则存入验证集
+            if img_path in val_path:  # If the path is in the sampled validation set, store it in the validation set
                 val_images_path.append(img_path)
                 val_images_label.append(image_class)
-            else:  # 否则存入训练集
+            else:  # Otherwise store in training set
                 train_images_path.append(img_path)
                 train_images_label.append(image_class)
 
@@ -63,18 +76,18 @@ def read_split_data(root: str, val_rate: float = 0.2):
 
     plot_image = False
     if plot_image:
-        # 绘制每种类别个数柱状图
+        # Draw bar chart of the number of each category
         plt.bar(range(len(flower_class)), every_class_num, align='center')
-        # 将横坐标0,1,2,3,4替换为相应的类别名称
+        # Replace horizontal coordinates 0,1,2,3,4 with corresponding category names
         plt.xticks(range(len(flower_class)), flower_class)
-        # 在柱状图上添加数值标签
+        # Add numerical labels on the bar chart
         for i, v in enumerate(every_class_num):
             plt.text(x=i, y=v + 5, s=str(v), ha='center')
-        # 设置x坐标
+        # Set x-coordinate
         plt.xlabel('image class')
-        # 设置y坐标
+        # Set y-coordinate
         plt.ylabel('number of images')
-        # 设置柱状图的标题
+        # Set the title of the bar chart
         plt.title('flower class distribution')
         plt.show()
 
@@ -82,6 +95,12 @@ def read_split_data(root: str, val_rate: float = 0.2):
 
 
 def plot_data_loader_image(data_loader):
+    """
+    Plot images from the data loader.
+    
+    Args:
+        data_loader: Data loader containing images and labels
+    """
     batch_size = data_loader.batch_size
     plot_num = min(batch_size, 4)
 
@@ -95,48 +114,81 @@ def plot_data_loader_image(data_loader):
         for i in range(plot_num):
             # [C, H, W] -> [H, W, C]
             img = images[i].numpy().transpose(1, 2, 0)
-            # 反Normalize操作
+            # Reverse Normalize operation
             img = (img * [0.229, 0.224, 0.225] + [0.485, 0.456, 0.406]) * 255
             label = labels[i].item()
             plt.subplot(1, plot_num, i+1)
             plt.xlabel(class_indices[str(label)])
-            plt.xticks([])  # 去掉x轴的刻度
-            plt.yticks([])  # 去掉y轴的刻度
+            plt.xticks([])  # Remove x-axis ticks
+            plt.yticks([])  # Remove y-axis ticks
             plt.imshow(img.astype('uint8'))
         plt.show()
 
 
 def write_pickle(list_info: list, file_name: str):
+    """
+    Write list to pickle file.
+    
+    Args:
+        list_info: List to be written
+        file_name: Name of the pickle file
+    """
     with open(file_name, 'wb') as f:
         pickle.dump(list_info, f)
 
 
 def read_pickle(file_name: str) -> list:
+    """
+    Read list from pickle file.
+    
+    Args:
+        file_name: Name of the pickle file
+        
+    Returns:
+        info_list: List read from the pickle file
+    """
     with open(file_name, 'rb') as f:
         info_list = pickle.load(f)
         return info_list
 
 
 def train_one_epoch(model, optimizer, data_loader, device, epoch):
-    print("当前学习率：", optimizer.param_groups[0]['lr'])
+    """
+    Train the model for one epoch.
+    
+    Args:
+        model: Model to be trained
+        optimizer: Optimizer for updating model parameters
+        data_loader: Data loader for training data
+        device: Device to run the model on
+        epoch: Current epoch number
+        
+    Returns:
+        accu_loss.item() / (step + 1): Average loss
+        top1_acc: Top-1 accuracy
+        macro_f1: Macro F1 score
+        recall: Recall
+        fps: Frames per second
+    """
+    print("Current learning rate:", optimizer.param_groups[0]['lr'])
     model.train()
     loss_function = torch.nn.CrossEntropyLoss()
-    accu_loss = torch.zeros(1).to(device)  # 累积损失
-    accu_num = torch.zeros(1).to(device)   # 累积预测正确的样本数量
+    accu_loss = torch.zeros(1).to(device)  # Accumulated loss
+    accu_num = torch.zeros(1).to(device)   # Accumulated number of correctly predicted samples
     optimizer.zero_grad()
 
     sample_num = 0
     data_loader = tqdm(data_loader, file=sys.stdout)
     
-    # 新增变量
+    # Additional variables
     all_preds = []
     all_labels = []
     start_time = time.time()
     total_images = 0
 
     for step, data in enumerate(data_loader):
-        #label:tensor([1, 2, 3, 1, 1, 0, 2, 4])
-        #images 通常是一个四维张量，其形状为 (B, C, H, W)
+        # label: tensor([1, 2, 3, 1, 1, 0, 2, 4])
+        # images is usually a four-dimensional tensor with shape (B, C, H, W)
         images, labels = data
         sample_num += images.shape[0]
         total_images += images.shape[0]
@@ -162,11 +214,11 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch):
         optimizer.step()
         optimizer.zero_grad()
 
-        # 收集预测结果和真实标签
+        # Collect prediction results and true labels
         all_preds.extend(pred_classes.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
 
-    # 计算额外的指标
+    # Calculate additional metrics
     top1_acc = accu_num.item() / sample_num
     macro_f1 = f1_score(all_labels, all_preds, average='macro')
     recall = recall_score(all_labels, all_preds, average='macro')
@@ -175,22 +227,38 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch):
     fps = total_images / (end_time - start_time)
 
     return (
-        accu_loss.item() / (step + 1),  # 平均损失
-        top1_acc,                       # Top-1 准确率
-        macro_f1,                       # 宏平均F1分数
-        recall,                         # 召回率
-        fps                             # 每秒处理图像的数量
+        accu_loss.item() / (step + 1),  # Average loss
+        top1_acc,                       # Top-1 accuracy
+        macro_f1,                       # Macro F1 score
+        recall,                         # Recall
+        fps                             # Images processed per second
     )
 
 
 @torch.no_grad()
-def evaluate(model, data_loader, device,epoch):
+def evaluate(model, data_loader, device, epoch):
+    """
+    Evaluate the model on the validation set.
+    
+    Args:
+        model: Model to be evaluated
+        data_loader: Data loader for validation data
+        device: Device to run the model on
+        epoch: Current epoch number
+        
+    Returns:
+        accu_loss.item() / (step + 1): Average loss
+        top1_acc: Top-1 accuracy
+        macro_f1: Macro F1 score
+        recall: Recall
+        fps: Frames per second
+    """
     loss_function = torch.nn.CrossEntropyLoss()
 
     model.eval()
 
-    accu_num = torch.zeros(1).to(device)   # 累计预测正确的样本数
-    accu_loss = torch.zeros(1).to(device)  # 累计损失
+    accu_num = torch.zeros(1).to(device)   # Accumulated number of correctly predicted samples
+    accu_loss = torch.zeros(1).to(device)  # Accumulated loss
 
     sample_num = 0
     data_loader = tqdm(data_loader, file=sys.stdout)
@@ -213,11 +281,11 @@ def evaluate(model, data_loader, device,epoch):
         data_loader.desc = "[valid epoch {}] loss: {:.3f}, acc: {:.3f}".format(epoch,
                                                                                accu_loss.item() / (step + 1),
                                                                                accu_num.item() / sample_num)
-        # 收集预测结果和真实标签
+        # Collect prediction results and true labels
         all_preds.extend(pred_classes.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
 
-    # 计算额外的指标
+    # Calculate additional metrics
     top1_acc = accu_num.item() / sample_num
     macro_f1 = f1_score(all_labels, all_preds, average='macro')
     recall = recall_score(all_labels, all_preds, average='macro')
@@ -226,9 +294,9 @@ def evaluate(model, data_loader, device,epoch):
     fps = total_images / (end_time - start_time)
 
     return (
-        accu_loss.item() / (step + 1),  # 平均损失
-        top1_acc,                       # Top-1 准确率
-        macro_f1,                       # 宏平均F1分数
-        recall,                         # 召回率
-        fps                             # 每秒处理图像的数量
+        accu_loss.item() / (step + 1),  # Average loss
+        top1_acc,                       # Top-1 accuracy
+        macro_f1,                       # Macro F1 score
+        recall,                         # Recall
+        fps                             # Images processed per second
     )
