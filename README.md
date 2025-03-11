@@ -30,9 +30,9 @@ Train. py and SwinLSC_model. py are the core files of the project. Please follow
 
 4. Ensure that the dataset is classified correctly and that images of the same category are stored in a folder named after the category.
 
-6. A reasonable set of input parameters are as follows:
+5. A reasonable set of input parameters are as follows:
 
-7. ```python
+6. ```python
        # Parse command line arguments
        parser = argparse.ArgumentParser()
        parser.add_argument('--num_classes', type=int, default=5)#Number of categories that need to be classified
@@ -53,9 +53,15 @@ Train. py and SwinLSC_model. py are the core files of the project. Please follow
        parser.add_argument('--device', default='cuda:0', help='device id (i.e. 0 or 0,1 or cpu)')
    ```
 
-8. After ensuring the above configuration is correct, run train.by in the IDE or type "python train.py" in the terminal to start training.
+7. After ensuring the above configuration is correct, run train.by in the IDE or type "python train.py" in the terminal to start training.
 
+   ## Ablation Experiments
 
+In the various files of the ablation experiment, SwinTS represents the SwinTransformer benchmark model, while Linformer is the global attention mechanism mentioned in the paper. SwinTS_Lingformer-ExtraConv represents the introduction of Linformer global attention module and ExtraConv module on the SwinTS benchmark model. All other files and naming conventions follow this principle. Due to the similarity in the Block structure of the models, the Block names of all models in this experiment are uniformly named SwinTransformer Block.In the ablation experiment, the model structure is similar to SwinLSC, and the import method is the same as SwinLSC. Write the following code in the train.pyfile:
+
+```python
+from SwinTS_Linformer_ExtraConv import swin_tiny_patch4_window7_224 as create_model
+```
 
 ## Related publications
 
