@@ -55,6 +55,11 @@ Train. py and SwinLSC_model. py are the core files of the project. Please follow
 
 7. After ensuring the above configuration is correct, run train.by in the IDE or type "python train.py" in the terminal to start training.
 
+8. Please note that the weight files for this project are stored in Git LFS, and the weights obtained using the ` git clone ` command are only pointer references. To use pre trained weights, please perform one of the following actions：
+
+   1. Download the row file of SwinLSC_imagenet. pth directly from the project address；
+   2. Enter the cloned project folder, locate the 'imagenet-1k_weights' directory, and run the' git lfs pull 'command to download the actual weight files.
+
    ## Ablation Experiments
 
 In the various files of the ablation experiment, SwinTS represents the SwinTransformer benchmark model, while Linformer is the global attention mechanism mentioned in the paper. SwinTS_Lingformer-ExtraConv represents the introduction of Linformer global attention module and ExtraConv module on the SwinTS benchmark model. All other files and naming conventions follow this principle. Due to the similarity in the Block structure of the models, the Block names of all models in this experiment are uniformly named SwinTransformer Block.In the ablation experiment, the model structure is similar to SwinLSC, and the import method is the same as SwinLSC. Write the following code in the train.pyfile:
